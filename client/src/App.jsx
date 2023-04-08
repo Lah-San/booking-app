@@ -14,7 +14,7 @@ import UserBookings from "./pages/UserBookings";
 import Booking from "./pages/Booking";
 import SearchPlaces from "./pages/SearchPlaces";
 
-axios.defaults.baseURL = "http://127.0.0.1:4000";
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL;
 axios.defaults.withCredentials = true;
 
 function App() {
