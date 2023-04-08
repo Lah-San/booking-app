@@ -95,7 +95,7 @@ export default function PlacesPage() {
                   className="flex cursor-pointer gap-4 border bg-gray-100 p-4 rounded-2xl duration-150 hover:shadow-sm"
                   to={"/account/places/" + place._id}
                 >
-                  <div className="flex h-32 grow shrink-0">
+                  <div className="flex grow shrink-0">
                     <PlaceImage place={place} />
                   </div>
                   <div className="w-200 whitespace-nowrap overflow-hidden text-ellipsis">
