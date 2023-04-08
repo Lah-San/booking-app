@@ -9,7 +9,7 @@ export default function PlaceImage({place, index=0, className=null}) {
   }
 
   if (!className) {
-    className = 'object-cover h-min-10 h-max-48 w-60 rounded-md mb-5';
+    className = 'object-cover h-min-10 h-max-48 w-60 rounded-md';
   }
 
   return (
