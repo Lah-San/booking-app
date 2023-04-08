@@ -92,7 +92,7 @@ export default function PlacesPage() {
             return (
               <div key={place._id} className="mb-4 rounded-2xl hover:shadow-md">
                 <Link
-                  className="flex cursor-pointer gap-4 border bg-gray-100 p-4 rounded-2xl duration-150 hover:shadow-sm"
+                  className="flex-columns text-center sm:text-left sm:flex cursor-pointer gap-4 sm:border sm:bg-gray-100 p-4 rounded-2xl duration-150 hover:shadow-sm"
                   to={"/account/places/" + place._id}
                 >
                   <div className="flex grow shrink-0">
