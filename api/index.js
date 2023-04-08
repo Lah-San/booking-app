@@ -39,8 +39,8 @@ async function uploadToS3(path, originalFilename, mimetype) {
   const client = new S3Client({
     region: "ap-southeast-2",
     credentials: {
-      accessKeyId: "AKIAXWOTMPNCF757ZNVH",
-      secretAccessKey: "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",
+      accessKeyId: process.env.S3_ACCESS_KEY,
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
     },
   });
   const parts = originalFilename.split(".");
