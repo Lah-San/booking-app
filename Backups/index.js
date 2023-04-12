@@ -1,5 +1,3 @@
-//SWDlIxO3489mLeL6
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -14,69 +12,33 @@ const Place = require("./models/Place");
 const { errorMonitor } = require("stream");
 const Booking = require("./models/Booking");
 const { rejects } = require("assert");
-require("dotenv").config();
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
-const NodeCache = require("node-cache");
-
 
 const app = express();
 app.use(
   cors({
     credentials: true,
-    origin:"http://127.0.0.1:5173",
+    origin: "http://127.0.0.1:5173",
   })
 );
 
-const cache = new NodeCache();
 const bcryptySalt = bcrypt.genSaltSync(10);
-const jwtSecret = process.env.JWTKEY;
-const aws_bucket = "lah-booking-app";
-
-const mime = require("mime-types");
+const jwtSecret = "C*UdrusT8#!6hOtI5?LVacHOp_a9i1";
 
 app.use(cookieParser());
 app.use(express.json());
 app.use("/uploads", express.static(__dirname + "/uploads"));
 
-async function uploadToS3(path, originalFilename, mimetype) {
-  const cachedUrl = cache.get(path);
-  if (cachedUrl) {
-    console.log("Using cached image URL:", cachedUrl);
-    return cachedUrl;
-  }
-
-  // Upload to S3 as before
-  const client = new S3Client({
-    region: "ap-southeast-2",
-    credentials: {
-      accessKeyId: process.env.S3_ACCESS_KEY,
-      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-    },
-  });
-  const parts = originalFilename.split(".");
-  const ext = parts[parts.length - 1];
-  const newFilename = Date.now() + "." + ext;
-
-  await client.send(
-    new PutObjectCommand({
-      Bucket: aws_bucket,
-      Body: fs.readFileSync(path),
-      Key: newFilename,
-      ContentType: mimetype,
-      ACL: "public-read",
-    })
-  );
-  const imageUrl = `https://${aws_bucket}.s3.amazonaws.com/${newFilename}`;
-
-  // Store the image URL in the cache
-  cache.set(path, imageUrl);
-
-  return imageUrl;
-}
+mongoose
+  .connect("mongodb://127.0.0.1:27017/mern-airbnc", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("Connected to DB"))
+  .catch(console.error);
 
 // get user token
 // function getUserDataFromReq(req) {
-//   return new Promise((resolve, rejec t) => {
+//   return new Promise((resolve, reject) => {
 //     jwt.verify(req.cookies.token, jwtSecret, {}, async (err, userData) => {
 //       if (err) throw err;
 //       resolve(userData);
@@ -100,8 +62,7 @@ function getUserDataFromReq(req) {
   });
 }
 
-app.post("/api/register", async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
+app.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
@@ -121,8 +82,7 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-app.post("/api/login", async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
+app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -153,8 +113,7 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-app.get("/api/profile", (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
+app.get("/profile", (req, res) => {
   const { token } = req.cookies;
   if (!token) {
     return res.json(null);
@@ -175,130 +134,45 @@ app.get("/api/profile", (req, res) => {
   }
 });
 
-app.post("/api/logout", (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
+app.post("/logout", (req, res) => {
   res.cookie("token", "").json(true);
 });
 
-app.post("/api/upload-by-link", async (req, res) => {
+app.post("/upload-by-link", async (req, res) => {
   try {
     const { link } = req.body;
     const newName = "photo" + Date.now() + ".jpg";
     await imageDownloader.image({
       url: link,
-      dest: "/tmp/" + newName,
+      dest: __dirname + "/uploads/" + newName,
     });
-    const url = await uploadToS3(
-      "/tmp/" + newName,
-      newName,
-      mime.lookup("/tmp/" + newName)
-    );
-    res.json(url);
+    res.json("uploads\\" + newName);
   } catch (err) {
     console.error(err);
     res.status(415).json({ message: "File not supported" });
   }
 });
 
-const photosMiddleware = multer({ dest: "/tmp" });
-app.post("/api/upload", photosMiddleware.array("photos", 100), async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
+const photosMiddleware = multer({ dest: "uploads/" });
+app.post("/upload", photosMiddleware.array("photos", 100), (req, res) => {
   try {
     const uploadedFiles = [];
     for (let i = 0; i < req.files.length; i++) {
-      const { path, originalname, mimetype } = req.files[i];
-      const url = await uploadToS3(path, originalname, mimetype);
-      uploadedFiles.push(url);
-      // const parts = originalname.split(".");
-      // const ext = parts[parts.length - 1];
-      // const newPath = path + "." + ext;
-      // fs.renameSync(path, newPath);
-      // uploadedFiles.push(newPath.replace("uploads/", ""));
+      const { path, originalname } = req.files[i];
+      const parts = originalname.split(".");
+      const ext = parts[parts.length - 1];
+      const newPath = path + "." + ext;
+      fs.renameSync(path, newPath);
+      uploadedFiles.push(newPath.replace("uploads/", ""));
     }
     res.json(uploadedFiles);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: err });
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
-app.delete("/api/places/:id", async (req, res) => {
-  try {
-    mongoose.connect(process.env.MONGO_URL);
-
-    const { token } = req.cookies;
-    const { id } = req.params;
-    jwt.verify(token, jwtSecret, {}, async (err, userData) => {
-      if (err) {
-        console.error(err);
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-      const deletedPlace = await Place.findByIdAndDelete({
-        _id: id,
-        owner: userData.id,
-      });
-      if (!deletedPlace) {
-        return res.status(404).json({ message: "Place not found" });
-      }
-      return res.json(deletedPlace);
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-app.put("/api/places", async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
-  try {
-    const { token } = req.cookies;
-    const {
-      id, // the ID of the existing Place to update
-      title,
-      address,
-      addedPhotos,
-      description,
-      perks,
-      extraInfo,
-      checkIn,
-      checkOut,
-      maxGuests,
-      price,
-    } = req.body;
-    jwt.verify(token, jwtSecret, {}, async (err, userData) => {
-      if (err) {
-        console.error(err);
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-      const updatedPlace = await Place.findOneAndUpdate(
-        { _id: id, owner: userData.id }, // find the existing Place by ID and owner
-        {
-          title,
-          address,
-          photos: addedPhotos,
-          description,
-          perks,
-          extraInfo,
-          checkIn,
-          checkOut,
-          maxGuests,
-          price,
-        },
-        { new: true } // return the updated document instead of the old one
-      );
-      if (!updatedPlace) {
-        return res.status(404).json({ message: "Place not found" });
-      }
-      return res.json(updatedPlace);
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-app.post("/api/places", async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
+app.post("/places", async (req, res) => {
   try {
     const { token } = req.cookies;
     const {
@@ -339,24 +213,28 @@ app.post("/api/places", async (req, res) => {
   }
 });
 
-app.get("/api/search", async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
-  const { title, maxGuests } = req.query;
+app.get("/search", async (req, res) => {
+  const { title, maxGuests } = req.params;
+  console.log(title);
+  console.log(maxGuests);
 
   try {
-    const data = await Place.find({
-      $and: [
-        { title: { $regex: new RegExp(title, "i") } },
-        { maxGuests: { $gte: parseInt(maxGuests) } },
-      ],
-    });
+    // const data = await Place.find({
+    //   $or: [
+    //     { title: { $regex: new RegExp(title, "i") } },
+    //     { maxGuests: { $regex: new RegExp(maxGuests, "i") } },
+    //   ],
+    // });
+    const data = await Place.find({ title: { $regex: new RegExp(title, "i") }  });
 
-    if (!data || data.length === 0) {
+
+    if (!data) {
       return res.status(404).json("Not found");
     }
-
+    //console.log(data);
     res.json(data);
   } catch (error) {
+    //console.error(error);
     res.status(500).json(error.message);
   }
 });
@@ -369,8 +247,7 @@ app.get("/api/search", async (req, res) => {
 //   });
 // });
 
-app.get("/api/user-places", async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
+app.get("/user-places", async (req, res) => {
   try {
     const { token } = req.cookies;
     if (!token) {
@@ -381,12 +258,8 @@ app.get("/api/user-places", async (req, res) => {
         return res.status(401).json({ message: "Unauthorized" });
       }
       const { id } = userData;
-      try {
-        const places = await Place.find({ owner: id });
-        res.json(places);
-      } catch {
-        res.status(404).json("Not Found");
-      }
+      const places = await Place.find({ owner: id });
+      res.json(places);
     });
   } catch (err) {
     console.error(err);
@@ -394,8 +267,7 @@ app.get("/api/user-places", async (req, res) => {
   }
 });
 
-app.get("/api/places/:id", async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
+app.get("/places/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const placeDoc = await Place.findById(id);
@@ -411,8 +283,7 @@ app.get("/api/places/:id", async (req, res) => {
   }
 });
 
-app.get("/api/edit/places/:id", async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
+app.get("/edit/places/:id", async (req, res) => {
   try {
     const { token } = req.cookies;
     if (!token) {
@@ -442,8 +313,7 @@ app.get("/api/edit/places/:id", async (req, res) => {
   }
 });
 
-app.get("/api/places", async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
+app.get("/places", async (req, res) => {
   try {
     res.json(await Place.find());
   } catch {
@@ -451,8 +321,7 @@ app.get("/api/places", async (req, res) => {
   }
 });
 
-app.post("/api/bookings", async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
+app.post("/bookings", async (req, res) => {
   try {
     const userData = await getUserDataFromReq(req);
     const { place, checkIn, checkOut, numberOfGuests, name, phone, price } =
@@ -476,8 +345,7 @@ app.post("/api/bookings", async (req, res) => {
   }
 });
 
-app.get("/api/bookings", async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
+app.get("/bookings", async (req, res) => {
   try {
     const userData = await getUserDataFromReq(req);
     if (!userData) {
@@ -504,8 +372,7 @@ app.get("/api/bookings", async (req, res) => {
   }
 });
 
-app.delete("/api/bookings/delete/:id", async (req, res) => {
-  mongoose.connect(process.env.MONGO_URL);
+app.delete("/bookings/delete/:id", async (req, res) => {
   try {
     const userData = await getUserDataFromReq(req);
 
@@ -528,13 +395,6 @@ app.delete("/api/bookings/delete/:id", async (req, res) => {
     console.error(error);
 
     if (error.message === "Unauthorized") {
-      mongoose
-        .connect("mongodb://127.0.0.1:27017/mern-airbnc", {
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        })
-        .then(() => console.log("Connected to DB"))
-        .catch(console.error);
       res.status(401).json({ error: "Unauthorized" });
     } else if (error.message === "Booking not found") {
       res.status(404).json({ error: "Booking not found" });
