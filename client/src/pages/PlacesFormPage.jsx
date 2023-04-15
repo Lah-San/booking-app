@@ -249,6 +249,7 @@ export default function PlacesFormPage() {
                   className="rounded-2xl w-full object-cover position-center"
                   src={link}
                   alt=""
+                  height={32}
                 />
                 <button
                   type="button"
