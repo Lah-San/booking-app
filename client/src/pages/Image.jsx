@@ -6,5 +6,5 @@ export default function Image({ src, ...rest }) {
   src = src && src.includes
     ("https://") ? src : "https://raw.githubusercontent.com/Lah-San/booking-app/main/api/" + src;
 
-  return <LazyLoadImage {...rest} src={src} alt={""} effect="blur"/>;
+  return <img {...rest} src={src} alt={""} effect="blur"/>;
 }
