@@ -246,7 +246,7 @@ export default function PlacesFormPage() {
             addedPhotos.map((link) => (
               <div className="h-32 flex relative" key={link}>
                 <Image
-                  className="rounded-2xl w-full h-32 object-scale-down position-center"
+                  className="rounded-2xl w-full object-cover position-center"
                   src={link}
                   alt=""
                 />
