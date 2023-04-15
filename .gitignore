@@ -1,5 +1,6 @@
 #keys
 .env
+Backups
 
 #modules
 node_modules/
