@@ -247,12 +247,11 @@ export default function PlacesFormPage() {
           {addedPhotos.length > 0 &&
             addedPhotos.map((link) => (
               <div className="h-32 flex relative" key={link}>
-                <LazyLoadImage
+                <img
                   className="rounded-2xl w-full object-cover"
                   src={link.includes
                     ("https://") ? link : "https://raw.githubusercontent.com/Lah-San/booking-app/main/api/" + link}
                   alt=""
-                  effect="blur"
                 />
                 <button
                   type="button"
