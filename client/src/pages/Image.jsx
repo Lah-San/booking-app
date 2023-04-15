@@ -6,5 +6,5 @@ export default function Image({ src, ...rest }) {
   src = src && src.includes
     ("https://") ? src : "https://raw.githubusercontent.com/Lah-San/booking-app/main/api/" + src;
 
-  return <img {...rest} src={src} alt={""} effect="blur"/>;
+  return <img className="rounded-2xl w-full object-cover position-center" src={src} alt={""} effect="blur"/>;
 }
