@@ -5,6 +5,8 @@ import { useParams } from "react-router-dom";
 import AccountNavigation from "./AccountNavigation";
 import { Navigate } from "react-router-dom";
 import { UserContext } from "../UserContext";
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 import Image from "./Image";
 
 export default function PlacesFormPage() {
@@ -245,11 +247,11 @@ export default function PlacesFormPage() {
           {addedPhotos.length > 0 &&
             addedPhotos.map((link) => (
               <div className="h-32 flex relative" key={link}>
-                <Image
-                  className="rounded-2xl h-32 w-full object-cover"
+                <LazyLoadImage
+                  className="rounded-2xl w-full object-cover"
                   src={link}
                   alt=""
-                  style={{ objectPosition: "left center" }}
+                  effect="blur"
                 />
                 <button
                   type="button"
