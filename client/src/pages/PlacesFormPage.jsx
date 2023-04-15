@@ -244,7 +244,7 @@ export default function PlacesFormPage() {
         <div className="mt-2 gap-3 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 pb-2">
           {addedPhotos.length > 0 &&
             addedPhotos.map((link) => (
-              <div className="h-32 flex relative" key={link}>
+              <div className="h-64 flex relative" key={link}>
                 <Image
                   className="rounded-2xl w-full object-cover position-center"
                   src={link}
