@@ -96,7 +96,7 @@ export default function SearchPlaces() {
                 {place.photos?.[0] && (
                   <Image
                     className="rounded-2xl object-cover aspect-square"
-                    src={axios.defaults.baseURL + "/" + place.photos?.[0]}
+                    src={place.photos?.[0]}
                     alt=""
                   />
                 )}
