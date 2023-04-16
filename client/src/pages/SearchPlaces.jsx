@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { useLocation } from 'react-router-dom';
+import Image from "./Image";
 
 export default function SearchPlaces() {
 
@@ -93,7 +94,7 @@ export default function SearchPlaces() {
             >
               <div className="bg-gray-500 rounded-2xl flex">
                 {place.photos?.[0] && (
-                  <img
+                  <Image
                     className="rounded-2xl object-cover aspect-square"
                     src={axios.defaults.baseURL + "/" + place.photos?.[0]}
                     alt=""
