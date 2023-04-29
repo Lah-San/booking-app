@@ -94,7 +94,7 @@ function IndexPage(searchResult) {
 
       {loading && !error ? (
         // Skeleton component to show loading animation
-        <div className="text-xl text-center">
+        <div className="text-xl text-center my-3">
           Loading...
         </div>
       ) : (
