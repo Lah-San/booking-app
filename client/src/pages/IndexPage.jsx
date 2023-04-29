@@ -36,31 +36,6 @@ function IndexPage(searchResult) {
     }
   }, [searchResult]);
 
-  // useEffect(() => {
-  //   if (searchResult !== undefined) {
-  //     axios
-  //       .get("/places")
-  //       .then((response) => {
-  //         setPlaces(response.data);
-  //       })
-  //       .catch((e) => {
-  //         if (e.code === "ECONNABORTED" || e.code === "ECONNREFUSED") {
-  //           setError("Server not responding, please try again later.");
-  //         } else if (e.message === "Network Error") {
-  //           setError("No network connection");
-  //         } else if (e.response.status === 404) {
-  //           setError("Page not Found");
-  //         } else if (e.response.status === 500) {
-  //           setError("Server Error");
-  //         } else {
-  //           setError("An error occurred, please try again later");
-  //         }
-  //       });
-  //   } else {
-  //     setPlaces(searchResult);
-  //   }
-  // }, [searchResult]);
-
   if (searchResult.length > 0) {
     return <div className="">Hi</div>;
   }
@@ -94,7 +69,7 @@ function IndexPage(searchResult) {
 
       {loading && !error ? (
         // Skeleton component to show loading animation
-        <div className="text-xl text-center my-3">
+        <div className="text-xl text-center my-3 border-t-2 p-4 mx-1">
           Loading...
         </div>
       ) : (
