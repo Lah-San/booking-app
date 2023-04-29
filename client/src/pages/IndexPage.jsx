@@ -3,17 +3,19 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Image from "./Image";
 
-
 function IndexPage(searchResult) {
   const [places, setPlaces] = useState([]);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Your existing code here
     if (searchResult !== undefined) {
       axios
         .get("/places")
         .then((response) => {
           setPlaces(response.data);
+          setLoading(false); // set loading to false
         })
         .catch((e) => {
           if (e.code === "ECONNABORTED" || e.code === "ECONNREFUSED") {
@@ -30,11 +32,37 @@ function IndexPage(searchResult) {
         });
     } else {
       setPlaces(searchResult);
+      setLoading(false); // set loading to false
     }
   }, [searchResult]);
 
+  // useEffect(() => {
+  //   if (searchResult !== undefined) {
+  //     axios
+  //       .get("/places")
+  //       .then((response) => {
+  //         setPlaces(response.data);
+  //       })
+  //       .catch((e) => {
+  //         if (e.code === "ECONNABORTED" || e.code === "ECONNREFUSED") {
+  //           setError("Server not responding, please try again later.");
+  //         } else if (e.message === "Network Error") {
+  //           setError("No network connection");
+  //         } else if (e.response.status === 404) {
+  //           setError("Page not Found");
+  //         } else if (e.response.status === 500) {
+  //           setError("Server Error");
+  //         } else {
+  //           setError("An error occurred, please try again later");
+  //         }
+  //       });
+  //   } else {
+  //     setPlaces(searchResult);
+  //   }
+  // }, [searchResult]);
+
   if (searchResult.length > 0) {
-    return <div className="">Hi</div>
+    return <div className="">Hi</div>;
   }
 
   return (
@@ -63,37 +91,48 @@ function IndexPage(searchResult) {
           </span>
         </div>
       )}
-      <div className="mt-8 grid gap-x-6 gap-y-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
-        {places.length > 0 &&
-          places.map((place) => (
-            <Link
-              to={"/places/" + place._id}
-              key={place._id}
-              className="border p-3 rounded-2xl duration-75 hover:shadow-lg "
-            >
-              <div className="bg-gray-500 rounded-2xl flex">
-                {place.photos?.[0] && (
-                  <Image
-                    className="rounded-2xl object-cover aspect-square"
-                    src={place.photos?.[0]}
-                    alt=""
-                  />
-                )}
-              </div>
-              <h2 className="font-bold text-lg==md mt-2">{place.title}</h2>
-              <h3 className="text-sm text-gray-600 truncate">
-                {place.address}
-              </h3>
-              <p className="text-sm text-gray-600">
-                {place.checkIn} - {place.checkOut}
-              </p>
-              <div className="flex align-baseline gap-1">
-                <h4 className="from-neutral-700 font-medium">${place.price}</h4>
-                <h4>per night</h4>
-              </div>
-            </Link>
-          ))}
-      </div>
+
+      {loading ? (
+        // Skeleton component to show loading animation
+        <div className="mt-8 grid gap-x-6 gap-y-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
+          <Skeleton count={4} height={200} />
+        </div>
+      ) : (
+        // Your existing map function to render the data
+        <div className="mt-8 grid gap-x-6 gap-y-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
+          {places.length > 0 &&
+            places.map((place) => (
+              <Link
+                to={"/places/" + place._id}
+                key={place._id}
+                className="border p-3 rounded-2xl duration-75 hover:shadow-lg "
+              >
+                <div className="bg-gray-500 rounded-2xl flex">
+                  {place.photos?.[0] && (
+                    <Image
+                      className="rounded-2xl object-cover aspect-square"
+                      src={place.photos?.[0]}
+                      alt=""
+                    />
+                  )}
+                </div>
+                <h2 className="font-bold text-lg==md mt-2">{place.title}</h2>
+                <h3 className="text-sm text-gray-600 truncate">
+                  {place.address}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {place.checkIn} - {place.checkOut}
+                </p>
+                <div className="flex align-baseline gap-1">
+                  <h4 className="from-neutral-700 font-medium">
+                    ${place.price}
+                  </h4>
+                  <h4>per night</h4>
+                </div>
+              </Link>
+            ))}
+        </div>
+      )}
     </div>
   );
 }

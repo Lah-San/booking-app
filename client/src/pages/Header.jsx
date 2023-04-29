@@ -98,10 +98,10 @@ function Header() {
           </div>
         </button>
         {isOverlayOpen && (
-          <div className="">
+          <div className="z-50">
             <div
               onClick={() => setIsOverlayOpen(false)}
-              className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-25"
+              className="fixed top-0 left-0 w-full z-50 h-full bg-gray-900 bg-opacity-25"
             ></div>
             <div className="fixed z-50 top-0 left-0 w-full">
               <form
