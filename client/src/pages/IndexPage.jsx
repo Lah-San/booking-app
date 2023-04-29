@@ -92,10 +92,10 @@ function IndexPage(searchResult) {
         </div>
       )}
 
-      {loading ? (
+      {loading && !error ? (
         // Skeleton component to show loading animation
-        <div className="mt-8 grid gap-x-6 gap-y-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
-          <Skeleton count={4} height={200} />
+        <div className="text-xl text-center">
+          Loading...
         </div>
       ) : (
         // Your existing map function to render the data
